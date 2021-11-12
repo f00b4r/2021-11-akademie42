@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ruleset name="Contributte">
+    <description>Contributte</description>
+
+    <!-- Config -->
+    <arg value="p"/>
+    <arg value="s"/>
+    <arg name="colors"/>
+    <arg name="encoding" value="utf-8"/>
+    <arg name="extensions" value="php,phpt"/>
+    <arg name="parallel" value="1"/>
+    <ini name="memory_limit" value="1024M"/>
+    <arg name="basepath" value="./"/>
+
+    <!-- Codestyles -->
+    <rule ref="./vendor/contributte/qa/ruleset.xml"/>
+
+    <!-- Custom rules -->
+    <rule ref="SlevomatCodingStandard.Files.TypeNameMatchesFileName">
+        <properties>
+            <property name="rootNamespaces" type="array">
+                <element key="app" value="App"/>
+            </property>
+        </properties>
+    </rule>
+
+</ruleset>

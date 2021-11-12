@@ -1,0 +1,10 @@
+application:
+	mapping:
+		*: [App\Modules, *, Presenters\*Presenter]
+
+services:
+	- App\Model\Routing\RouterFactory::createRouter
+
+	latte.latteFactory:
+		setup:
+			- '$onCompile[]' = App\Model\Latte\ManifestMacro::setup(%wwwDir%/dist/manifest.json)

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>{ifset title}{include title|stripHtml} | {/ifset} Nette</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {block head}{/block}
+</head>
+
+<body>
+
+<div class="antialiased px-6 text-gray-900">
+    <div class="divide-y max-w-xl md:max-w-4xl mx-auto">
+        <div class="py-8">
+            <h1 class="font-bold text-3xl">Nette + Vite by <a href="https://github.com/f3l1x" class="text-blue-600 underline">@f3l1x</a></h1>
+        </div>
+        <div class="py-8">
+            {include content}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+

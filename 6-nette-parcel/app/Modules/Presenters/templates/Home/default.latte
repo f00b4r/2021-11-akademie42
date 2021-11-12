@@ -1,0 +1,18 @@
+{block #head}
+    <script type="module" src="{$basePath}/dist/main.js?v={assets dist/main.js}"></script>
+    <link rel="stylesheet" href="{$basePath}/dist/main.css?v={assets dist/main.css}">
+{/block}
+
+{block content}
+
+<div class="flex flex-col space-y-16">
+    <div>
+        <div class="font-bold text-2xl">Nette</div>
+        <div>Hello from Nette</div>
+    </div>
+
+    <div>
+        <div class="font-bold text-2xl">Vue</div>
+        <div id="app"></div>
+    </div>
+</div>

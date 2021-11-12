@@ -1,0 +1,15 @@
+{
+  "source": "index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build"
+  },
+  "devDependencies": {
+    "@parcel/transformer-vue": "^2.0.1",
+    "@vue/compiler-sfc": "^3.2.21",
+    "parcel": "latest"
+  },
+  "dependencies": {
+    "vue": "^3.0.0"
+  }
+}

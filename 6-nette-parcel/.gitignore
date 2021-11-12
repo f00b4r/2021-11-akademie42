@@ -1,0 +1,13 @@
+# Nette
+/var
+/config/local.neon
+/www/dist
+
+# PHP
+/vendor
+
+# Node
+/node_modules
+
+# Parcel
+/.parcel-cache

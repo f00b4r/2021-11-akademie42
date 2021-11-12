@@ -1,0 +1,39 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "target": "esnext",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "sourceMap": false,
+        "declaration": false,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noEmitOnError": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "strictNullChecks": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "outDir": "www/dist",
+        "baseUrl": "./",
+        "paths": {
+            "@/*": [
+                "assets/js/*"
+            ]
+        },
+        "lib": [
+            "esnext",
+            "dom"
+        ],
+        "typeRoots": [
+            "./node_modules/@types",
+        ]
+    },
+    "include": [
+        "assets/js/**/*",
+    ]
+}
