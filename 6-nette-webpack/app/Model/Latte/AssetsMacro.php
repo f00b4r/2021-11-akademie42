@@ -11,7 +11,7 @@ use Nette\InvalidStateException;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Json;
 
-final class ManifestMacro extends MacroSet
+final class AssetsMacro extends MacroSet
 {
 
 	private string $manifest;

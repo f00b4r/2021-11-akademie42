@@ -7,4 +7,4 @@ services:
 
 	latte.latteFactory:
 		setup:
-			- '$onCompile[]' = App\Model\Latte\ManifestMacro::setup(%wwwDir%/dist/manifest.json)
+			- '$onCompile[]' = App\Model\Latte\AssetsMacro::setup(%wwwDir%/dist/manifest.json)

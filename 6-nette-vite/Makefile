@@ -24,6 +24,9 @@ dev: ## Start PHP development server
 assets: ## Compile assets
 	npm run watch
 
+serve: ## Serve assets via vite dev server
+	npm run serve
+
 build: ## Build assets
 	npm run build
 

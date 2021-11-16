@@ -12,7 +12,7 @@ use Nette\InvalidStateException;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Json;
 
-final class ManifestMacro extends MacroSet
+final class AssetsMacro extends MacroSet
 {
 
 	private string $manifest;
@@ -20,11 +20,14 @@ final class ManifestMacro extends MacroSet
 	/** @var mixed[]|null */
 	private ?array $content = null;
 
-	private function __construct(Compiler $compiler, string $manifest)
+	private ?string $base = null;
+
+	private function __construct(Compiler $compiler, string $manifest, string $base)
 	{
 		parent::__construct($compiler);
 
 		$this->manifest = $manifest;
+		$this->base = $base;
 	}
 
 	public function macroAssetsJs(MacroNode $node, PhpWriter $writer): string
@@ -36,7 +39,7 @@ final class ManifestMacro extends MacroSet
 
 		$output = '';
 		foreach ($scripts as $script) {
-			$output .= $writer->write('echo "<script type=\"module\" src=\"$basePath%raw\"></script>";', $script);
+			$output .= $writer->write('echo "<script type=\"module\" src=\"".$basePath."%raw%raw\"></script>";', $this->base, $script);
 		}
 
 		return $output;
@@ -51,18 +54,18 @@ final class ManifestMacro extends MacroSet
 
 		$output = '';
 		foreach ($stylesheets as $stylesheet) {
-			$output .= $writer->write('echo "<link rel=\"stylesheet\" href=\"$basePath%raw\">";', $stylesheet);
+			$output .= $writer->write('echo "<link rel=\"stylesheet\" href=\"".$basePath."%raw%raw\">";', $this->base, $stylesheet);
 		}
 
 		return $output;
 	}
 
-	public static function setup(string $manifest): callable
+	public static function setup(string $manifest, string $base): callable
 	{
-		return function (Engine $engine) use ($manifest): AssetsMacro {
+		return function (Engine $engine) use ($manifest, $base): AssetsMacro {
 			$compiler = $engine->getCompiler();
 
-			$set = new AssetsMacro($compiler, $manifest);
+			$set = new AssetsMacro($compiler, $manifest, $base);
 			$set->addMacro('assets-css', [$set, 'macroAssetsCss']);
 			$set->addMacro('assets-js', [$set, 'macroAssetsJs']);
 

@@ -17,6 +17,7 @@
   },
   "scripts": {
     "watch": "vite build --watch --mode=development",
+    "serve": "vite --mode=development",
     "build": "vite build --watch --mode"
   }
 }
