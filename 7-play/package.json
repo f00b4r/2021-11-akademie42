@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.2.16",
+    "vuex": "^4.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^1.9.3",
+    "sass": "^1.43.4",
+    "tailwindcss": "^2.2.19",
+    "vite": "^2.6.4"
+  }
+}
