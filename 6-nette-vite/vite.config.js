@@ -1,39 +1,75 @@
-import { resolve } from 'path';
+import path from 'path';
+import fs from 'fs';
 import { defineConfig } from 'vite';
 import createVuePlugin from '@vitejs/plugin-vue';
 
+const createReloadPlugin = () => ({
+	name: 'nette:reload',
+	handleHotUpdate({file, server}) {
+		if (!file.includes('var') && file.endsWith(".php") || file.endsWith(".latte")) {
+			server.ws.send({
+				type: 'full-reload',
+				path: '*',
+			});
+		}
+	}
+});
+
+const createDevPlugin = () => ({
+	name: 'nette:dev',
+	async configureServer({config}) {
+		const buildDir = path.resolve(config.root, config.build.outDir);
+
+		const devserver = [
+			'@vite/client',
+			...(config.build.rollupOptions.input || [])
+		].map(asset => {
+			return `http://${config.server.host}:${config.server.port}/${asset}`;
+		});
+
+		await fs.promises.mkdir(buildDir, {recursive: true});
+		await fs.promises.writeFile(
+			path.resolve(buildDir, 'devserver.json'),
+			JSON.stringify(devserver, null, 2)
+		);
+	}
+});
+
 export default defineConfig(({mode}) => {
-	const DEV = mode === 'development';
+	const isDev = mode === 'development';
 
 	return {
 		resolve: {
 			alias: {
-				'@': resolve(__dirname, 'assets/js'),
-				'~': resolve(__dirname, 'node_modules'),
+				'@': path.resolve(__dirname, 'assets/js'),
+				'~': path.resolve(__dirname, 'node_modules'),
 			},
 		},
 		server: {
 			open: false,
 			hmr: true,
+			port: 3000,
+			host: '0.0.0.0'
 		},
 		build: {
 			manifest: true,
-			assetsDir: '',
 			outDir: './www/dist/',
-			emptyOutDir: !DEV,
-			minify: DEV ? false : 'esbuild',
+			emptyOutDir: !isDev,
+			minify: isDev ? false : 'esbuild',
 			rollupOptions: {
 				output: {
 					manualChunks: undefined,
-					chunkFileNames: DEV ? '[name].js' : '[name]-[hash].js',
-					entryFileNames: DEV ? '[name].js' : '[name].[hash].js',
-					assetFileNames: DEV ? '[name].[ext]' : '[name].[hash].[ext]',
+					chunkFileNames: isDev ? '[name].js' : '[name]-[hash].js',
+					entryFileNames: isDev ? '[name].js' : '[name].[hash].js',
+					assetFileNames: isDev ? '[name].[ext]' : '[name].[hash].[ext]',
 				},
-				input: {
-					main: './assets/main.js'
-				}
+				input: ['assets/main.js'],
 			}
 		},
-		plugins: [createVuePlugin()],
+		plugins: [
+			createVuePlugin(),
+			createReloadPlugin(),
+			createDevPlugin(),
+		],
 	}
 });

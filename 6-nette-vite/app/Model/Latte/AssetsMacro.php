@@ -15,46 +15,47 @@ use Nette\Utils\Json;
 final class AssetsMacro extends MacroSet
 {
 
-	private string $manifest;
+	private string $assetsDir;
+
+	private string $assetsPath;
 
 	/** @var mixed[]|null */
-	private ?array $content = null;
+	private ?array $manifest = null;
 
-	private ?string $base = null;
+	/** @var mixed[]|null */
+	private ?array $devserver = null;
 
-	private function __construct(Compiler $compiler, string $manifest, string $base)
+	private function __construct(Compiler $compiler, string $assetsDir, string $assetsPath)
 	{
 		parent::__construct($compiler);
 
-		$this->manifest = $manifest;
-		$this->base = $base;
+		$this->assetsDir = $assetsDir;
+		$this->assetsPath = $assetsPath;
 	}
 
-	public function macroAssetsJs(MacroNode $node, PhpWriter $writer): string
-	{
-		if (!$node->args) throw new InvalidStateException('{assets-js} cannot be empty');
-
-		$asset = trim($writer->write('%node.word'), ' \'"');
-		$scripts = $this->getAsset($asset, 'js');
-
-		$output = '';
-		foreach ($scripts as $script) {
-			$output .= $writer->write('echo "<script type=\"module\" src=\"".$basePath."%raw%raw\"></script>";', $this->base, $script);
-		}
-
-		return $output;
-	}
-
-	public function macroAssetsCss(MacroNode $node, PhpWriter $writer): string
+	public function macroAssets(MacroNode $node, PhpWriter $writer): string
 	{
 		if (!$node->args) throw new InvalidStateException('{assets-css} cannot be empty');
 
+		$isServer = $this->getDevServer() !== null;
 		$asset = trim($writer->write('%node.word'), ' \'"');
-		$stylesheets = $this->getAsset($asset, 'css');
-
 		$output = '';
-		foreach ($stylesheets as $stylesheet) {
-			$output .= $writer->write('echo "<link rel=\"stylesheet\" href=\"".$basePath."%raw%raw\">";', $this->base, $stylesheet);
+
+		if ($isServer) {
+			$scripts = $this->getDevServerAssets();
+			foreach ($scripts as $script) {
+				$output .= $writer->write('echo "<script type=\"module\" src=\"%raw\"></script>";', $script);
+			}
+		} else {
+			$scripts = $this->getManifestAssets($asset, 'js');
+			foreach ($scripts as $script) {
+				$output .= $writer->write('echo "<script type=\"module\" src=\"".$basePath."%raw%raw\"></script>";', $this->assetsPath, $script);
+			}
+
+			$stylesheets = $this->getManifestAssets($asset, 'css');
+			foreach ($stylesheets as $stylesheet) {
+				$output .= $writer->write('echo "<link rel=\"stylesheet\" href=\"".$basePath."%raw%raw\">";', $this->assetsPath, $stylesheet);
+			}
 		}
 
 		return $output;
@@ -66,8 +67,7 @@ final class AssetsMacro extends MacroSet
 			$compiler = $engine->getCompiler();
 
 			$set = new AssetsMacro($compiler, $manifest, $base);
-			$set->addMacro('assets-css', [$set, 'macroAssetsCss']);
-			$set->addMacro('assets-js', [$set, 'macroAssetsJs']);
+			$set->addMacro('assets', [$set, 'macroAssets']);
 
 			return $set;
 		};
@@ -76,12 +76,12 @@ final class AssetsMacro extends MacroSet
 	/**
 	 * @return string[]
 	 */
-	private function getAsset(string $asset, string $type): array
+	private function getManifestAssets(string $asset, string $type): array
 	{
-		$manifest = $this->load();
+		$manifest = $this->getManifest();
 
 		if (!isset($manifest[$asset])) {
-			throw new LogicException(sprintf('Asset "%s" not found', $asset));
+			throw new LogicException(sprintf('Asset "%s" not found in "manifest.json"', $asset));
 		}
 
 		if ($type === 'js') {
@@ -98,13 +98,39 @@ final class AssetsMacro extends MacroSet
 	/**
 	 * @return mixed[]
 	 */
-	private function load(): array
+	private function getManifest(): array
 	{
-		if ($this->content === null) {
-			$this->content = Json::decode(FileSystem::read($this->manifest), JSON_OBJECT_AS_ARRAY);
+		if ($this->manifest === null) {
+			$this->manifest = Json::decode(FileSystem::read($this->assetsDir . '/manifest.json'), JSON_OBJECT_AS_ARRAY);
 		}
 
-		return $this->content;
+		return $this->manifest;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getDevServerAssets(): array
+	{
+		$assets = $this->getDevServer();
+
+		if (empty($assets)) {
+			throw new LogicException('There are no assets in "devserver.json"');
+		}
+
+		return $assets;
+	}
+
+	/**
+	 * @return mixed[]
+	 */
+	private function getDevServer(): array
+	{
+		if ($this->devserver === null) {
+			$this->devserver = Json::decode(FileSystem::read($this->assetsDir . '/devserver.json'), JSON_OBJECT_AS_ARRAY);
+		}
+
+		return $this->devserver;
 	}
 
 }
